@@ -1,0 +1,2775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="适合手机使用的甲状腺术后随访记录页，可上传每次复查的化验单图片、记录指标变化，并部署到 GitHub Pages。" />
+  <meta name="theme-color" content="#1c7a71" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="术后随访记录" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+  <title>术后随访记录 | 手机版</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5efe5;
+      --bg-soft: #fbf7f1;
+      --panel: rgba(255, 252, 247, 0.88);
+      --panel-strong: rgba(255, 250, 244, 0.96);
+      --ink: #233135;
+      --muted: #657072;
+      --line: rgba(35, 49, 53, 0.1);
+      --teal: #1c7a71;
+      --teal-deep: #125a54;
+      --sage: #b7ccb8;
+      --coral: #c66a56;
+      --gold: #d5b06b;
+      --shadow: 0 18px 42px rgba(34, 49, 53, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --space-1: 0.35rem;
+      --space-2: 0.65rem;
+      --space-3: 1rem;
+      --space-4: 1.4rem;
+      --space-5: 2rem;
+      --space-6: 2.8rem;
+      --max-width: 1280px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(28, 122, 113, 0.16), transparent 32%),
+        radial-gradient(circle at top right, rgba(197, 107, 86, 0.16), transparent 28%),
+        linear-gradient(180deg, #f8f2e8 0%, #f2eadf 42%, #efe8df 100%);
+      text-wrap: pretty;
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 80%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .app-shell {
+      width: min(calc(100% - 1rem), 980px);
+      margin: 0 auto;
+      padding: 0.7rem 0 calc(5.8rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(1.6rem, 2vw, 2.2rem);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 32px;
+      background:
+        linear-gradient(135deg, rgba(255, 253, 249, 0.9), rgba(255, 247, 238, 0.86)),
+        linear-gradient(120deg, rgba(28, 122, 113, 0.08), rgba(198, 106, 86, 0.08));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      isolation: isolate;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -10%;
+      top: -35%;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(183, 204, 184, 0.58), transparent 64%);
+      z-index: -1;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 1.3rem;
+      grid-template-columns: 1fr;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(28, 122, 113, 0.09);
+      color: var(--teal-deep);
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--teal), var(--teal-deep));
+      box-shadow: 0 0 0 5px rgba(28, 122, 113, 0.12);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: "Source Han Serif SC", "Songti SC", "STSong", serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      margin-top: 1rem;
+      font-size: clamp(2.3rem, 4vw, 4.5rem);
+      line-height: 0.95;
+      max-width: 11ch;
+    }
+
+    .hero-copy p {
+      max-width: 48rem;
+      margin: 1rem 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1.3rem;
+    }
+
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.9rem 1.25rem;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(18, 90, 84, 0.16);
+      outline: none;
+    }
+
+    .button.primary {
+      background: linear-gradient(180deg, var(--teal), var(--teal-deep));
+      color: #fcfbf8;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .button.ghost {
+      background: transparent;
+      color: var(--teal-deep);
+      border: 1px solid rgba(28, 122, 113, 0.18);
+    }
+
+    .hero-panel {
+      padding: 1.1rem;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-panel h2 {
+      font-size: 1.2rem;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .mini-card {
+      padding: 0.9rem;
+      border-radius: 18px;
+      background: rgba(255, 252, 247, 0.75);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .mini-card strong {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 1.15rem;
+      color: var(--teal-deep);
+    }
+
+    .mini-card p {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+      align-items: start;
+    }
+
+    .column {
+      display: grid;
+      gap: 1.15rem;
+    }
+
+    .panel {
+      container-type: inline-size;
+      padding: clamp(1rem, 2vw, 1.4rem);
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      animation: rise 560ms ease both;
+    }
+
+    .panel.soft {
+      background:
+        linear-gradient(180deg, rgba(255, 250, 244, 0.94), rgba(253, 247, 240, 0.82)),
+        rgba(255, 255, 255, 0.6);
+    }
+
+    .panel-heading,
+    .section-row {
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-row {
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .panel-heading p,
+    .helper,
+    .note {
+      margin: 0.3rem 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .stat-grid {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      padding: 1rem;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(253, 250, 246, 0.78));
+      border: 1px solid rgba(35, 49, 53, 0.08);
+      min-height: 140px;
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -20% -45% auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(183, 204, 184, 0.42), transparent 70%);
+    }
+
+    .stat-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .stat-value {
+      display: flex;
+      align-items: baseline;
+      gap: 0.45rem;
+      margin-top: 1.1rem;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      font-weight: 700;
+      color: var(--teal-deep);
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-unit {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.7rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: rgba(28, 122, 113, 0.08);
+      color: var(--teal-deep);
+      position: relative;
+      z-index: 1;
+    }
+
+    .status.warn {
+      background: rgba(198, 106, 86, 0.1);
+      color: #934434;
+    }
+
+    .status.neutral {
+      background: rgba(213, 176, 107, 0.14);
+      color: #8b6a28;
+    }
+
+    .chart-card {
+      overflow: hidden;
+      border-radius: 22px;
+      border: 1px solid rgba(35, 49, 53, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(252, 247, 240, 0.7));
+    }
+
+    .chart-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1rem 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .canvas-label {
+      font-size: 0.78rem;
+      fill: rgba(35, 49, 53, 0.65);
+    }
+
+    .legend {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      padding: 0 1rem 1rem;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 0.95rem;
+      height: 0.95rem;
+      border-radius: 999px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 0.95rem;
+      margin-top: 1rem;
+    }
+
+    .install-banner {
+      margin-top: 1.25rem;
+    }
+
+    .install-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .install-card {
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .install-card strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .install-card p {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .timeline-date {
+      padding: 0.9rem 0.8rem;
+      border-radius: 18px;
+      background: rgba(28, 122, 113, 0.08);
+      text-align: center;
+      color: var(--teal-deep);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      border: 1px solid rgba(28, 122, 113, 0.12);
+    }
+
+    .timeline-card {
+      position: relative;
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .pill-row,
+    .chip-row,
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .button-block {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .care-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .care-card {
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .care-card strong {
+      display: block;
+      font-size: 0.98rem;
+      color: var(--ink);
+    }
+
+    .care-card p {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .profile-summary {
+      display: grid;
+      gap: 0.7rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: baseline;
+      font-size: 0.9rem;
+    }
+
+    .summary-line span:first-child {
+      color: var(--muted);
+    }
+
+    .checklist {
+      display: grid;
+      gap: 0.7rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    .checklist li::before {
+      content: "";
+      width: 0.9rem;
+      height: 0.9rem;
+      margin-top: 0.28rem;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--teal), var(--teal-deep));
+      box-shadow: 0 0 0 5px rgba(28, 122, 113, 0.1);
+    }
+
+    .chip {
+      padding: 0.4rem 0.72rem;
+      border-radius: 999px;
+      background: rgba(183, 204, 184, 0.22);
+      color: var(--ink);
+      font-size: 0.82rem;
+      border: 1px solid rgba(35, 49, 53, 0.06);
+    }
+
+    .pill {
+      padding: 0.5rem 0.72rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: rgba(28, 122, 113, 0.08);
+      color: var(--teal-deep);
+    }
+
+    .pill.med {
+      background: rgba(198, 106, 86, 0.1);
+      color: #964533;
+    }
+
+    .timeline-card h3 {
+      font-size: 1.12rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 0.7rem;
+    }
+
+    form {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    label {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.85rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(35, 49, 53, 0.1);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--ink);
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(28, 122, 113, 0.4);
+      box-shadow: 0 0 0 4px rgba(28, 122, 113, 0.1);
+      background: #fffdfa;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 88px;
+    }
+
+    .inline-note {
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      background: rgba(213, 176, 107, 0.12);
+      color: #745a22;
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .record-list {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .image-workspace {
+      display: grid;
+      gap: 0.9rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.54);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .upload-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+      gap: 0.85rem;
+      align-items: start;
+    }
+
+    .image-stage {
+      display: grid;
+      gap: 0.8rem;
+      min-height: 260px;
+      padding: 0.9rem;
+      border-radius: 20px;
+      background: rgba(255, 252, 247, 0.72);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .image-stage img {
+      width: 100%;
+      max-height: 360px;
+      object-fit: contain;
+      border-radius: 16px;
+      background: #f7f1e8;
+    }
+
+    .image-thumbs {
+      display: grid;
+      gap: 0.65rem;
+      align-content: start;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 0.2rem;
+    }
+
+    .image-thumb {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 0.7rem;
+      width: 100%;
+      padding: 0.55rem;
+      border-radius: 18px;
+      border: 1px solid rgba(35, 49, 53, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .image-thumb.active {
+      border-color: rgba(28, 122, 113, 0.35);
+      box-shadow: 0 0 0 4px rgba(28, 122, 113, 0.08);
+    }
+
+    .image-thumb img {
+      width: 88px;
+      height: 88px;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #f5efe5;
+    }
+
+    .image-thumb strong,
+    .attachment-button strong {
+      display: block;
+      font-size: 0.92rem;
+    }
+
+    .image-thumb small,
+    .attachment-button small {
+      display: block;
+      margin-top: 0.2rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .assist-box {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 22px;
+      background: rgba(28, 122, 113, 0.05);
+      border: 1px solid rgba(28, 122, 113, 0.12);
+    }
+
+    .assist-grid {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 0.78fr);
+      align-items: start;
+    }
+
+    .assist-result {
+      display: grid;
+      gap: 0.55rem;
+      padding: 0.9rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .assist-result strong {
+      font-size: 0.94rem;
+    }
+
+    .assist-result .chip-row {
+      min-height: 2rem;
+    }
+
+    .attachment-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+    }
+
+    .attachment-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(35, 49, 53, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .attachment-button img {
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #f5efe5;
+    }
+
+    .sticky-actions {
+      position: fixed;
+      left: 0.7rem;
+      right: 0.7rem;
+      bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+      z-index: 20;
+      display: grid;
+      gap: 0.55rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 0.55rem;
+      border-radius: 24px;
+      background: rgba(255, 251, 245, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 18px 38px rgba(34, 49, 53, 0.16);
+    }
+
+    .sticky-actions .button {
+      min-height: 52px;
+      padding: 0.75rem 0.7rem;
+      font-size: 0.9rem;
+    }
+
+    .record-row {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0.95rem 1rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(35, 49, 53, 0.08);
+    }
+
+    .record-row strong {
+      display: block;
+      font-size: 1rem;
+    }
+
+    .record-row small {
+      display: block;
+      margin-top: 0.25rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .text-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--coral);
+      cursor: pointer;
+      padding: 0.2rem;
+    }
+
+    .empty {
+      padding: 1rem;
+      border-radius: 18px;
+      border: 1px dashed rgba(35, 49, 53, 0.16);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .footer-note {
+      margin-top: 1.15rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.7;
+    }
+
+    .hidden-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 1.4rem;
+      transform: translateX(-50%) translateY(12px);
+      padding: 0.8rem 1rem;
+      border-radius: 999px;
+      background: rgba(18, 90, 84, 0.94);
+      color: #fffdf8;
+      box-shadow: 0 18px 32px rgba(18, 90, 84, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .viewer {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 1.2rem;
+      background: rgba(24, 33, 36, 0.72);
+      backdrop-filter: blur(8px);
+      z-index: 30;
+    }
+
+    .viewer.open {
+      display: grid;
+    }
+
+    .viewer-card {
+      width: min(100%, 1080px);
+      max-height: min(90vh, 920px);
+      display: grid;
+      gap: 0.8rem;
+      padding: 1rem;
+      border-radius: 28px;
+      background: rgba(255, 252, 247, 0.96);
+      box-shadow: 0 28px 60px rgba(15, 22, 24, 0.28);
+    }
+
+    .viewer-top {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .viewer-stage {
+      overflow: auto;
+      border-radius: 22px;
+      background: #f4ede3;
+      min-height: 320px;
+    }
+
+    .viewer-stage img {
+      display: block;
+      width: 100%;
+      max-height: 72vh;
+      object-fit: contain;
+      margin: 0 auto;
+    }
+
+    .viewer-thumbs {
+      display: flex;
+      gap: 0.55rem;
+      overflow: auto;
+      padding-bottom: 0.2rem;
+    }
+
+    .viewer-thumbs button {
+      flex: 0 0 auto;
+      width: 74px;
+      height: 74px;
+      border-radius: 16px;
+      border: 1px solid rgba(35, 49, 53, 0.08);
+      background: #fff9f1;
+      padding: 0.2rem;
+      cursor: pointer;
+    }
+
+    .viewer-thumbs button.active {
+      border-color: rgba(28, 122, 113, 0.35);
+      box-shadow: 0 0 0 4px rgba(28, 122, 113, 0.08);
+    }
+
+    .viewer-thumbs img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    @container (max-width: 700px) {
+      .stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1121px) {
+      .app-shell {
+        width: min(calc(100% - 2rem), var(--max-width));
+        padding-top: 1.25rem;
+      }
+
+      .hero-grid {
+        grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.92fr);
+      }
+
+      .sticky-actions {
+        left: 50%;
+        right: auto;
+        width: min(calc(100% - 2rem), 880px);
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .stat-grid,
+      .field-grid,
+      .mini-grid,
+      .upload-layout,
+      .assist-grid,
+      .care-grid,
+      .install-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-date {
+        text-align: left;
+      }
+
+      h1 {
+        max-width: none;
+      }
+
+      .button,
+      .attachment-button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .toolbar {
+        display: grid;
+      }
+
+      .record-row,
+      .summary-line {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">病人自用版 · 手机优先</span>
+          <h1>把每次复查和每次用药调整，放回一条清楚的历史线上。</h1>
+          <p>
+            页面重点放在历史复查记录和用药记录本身。适合病人自己用手机随手补录、回看趋势，也方便部署到 GitHub Pages 后在手机浏览器里直接打开。
+          </p>
+          <div class="hero-actions">
+            <button class="button primary button-block" type="button" data-jump="#exam-form">新增复查记录</button>
+            <button class="button secondary button-block" type="button" data-jump="#med-form">新增用药记录</button>
+            <button class="button ghost button-block" type="button" data-jump="#cloud-sync">打开云端同步</button>
+          </div>
+        </div>
+        <aside class="hero-panel">
+          <h2>先看这 4 个关键点</h2>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <span class="helper">最近一次检查</span>
+              <strong id="hero-last-check">暂无</strong>
+              <p>先确认最近一次复查有没有补进时间线。</p>
+            </div>
+            <div class="mini-card">
+              <span class="helper">当前药量</span>
+              <strong id="hero-current-dose">未记录</strong>
+              <p>看病前先核对自己现在到底吃多少。</p>
+            </div>
+            <div class="mini-card">
+              <span class="helper">最近一次云端同步</span>
+              <strong id="hero-sync-status">本地模式</strong>
+              <p>部署到 GitHub Pages 后，手机上也能直接访问。</p>
+            </div>
+            <div class="mini-card">
+              <span class="helper">记录总数</span>
+              <strong id="hero-count">0 条</strong>
+              <p>时间越长，越需要把历史记录整理完整。</p>
+            </div>
+          </div>
+          <p class="footer-note">提示：这里负责整理历史记录，不替代医生诊断；调药和复查方案仍然以医生意见为准。</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="panel soft install-banner">
+      <div class="section-row">
+        <div>
+          <h2>手机使用和部署方式</h2>
+          <p class="note">这是一个纯前端静态项目，部署后不需要服务器，适合直接放到 GitHub Pages。</p>
+        </div>
+      </div>
+      <div class="install-grid">
+        <div class="install-card">
+          <strong>1. 手机打开即可用</strong>
+          <p>页面记录默认保存在当前浏览器本地，离线也能继续补录检查和药量。</p>
+        </div>
+        <div class="install-card">
+          <strong>2. 可加到主屏幕</strong>
+          <p>iPhone 可用 Safari 的“添加到主屏幕”；Android 可在浏览器菜单里安装，体验会更像 App。</p>
+        </div>
+        <div class="install-card">
+          <strong>3. 云端同步更适合 JSON</strong>
+          <p>推荐把文字记录同步到 GitHub，化验单图片仍以本机保存和手动导出备份为主，更安全也更稳定。</p>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="column">
+        <article class="panel soft">
+          <div class="section-row">
+            <div>
+              <h2>历史记录总览</h2>
+              <p class="note">第一屏直接看累计复查、累计调药、最近变化和当前状态。</p>
+            </div>
+          </div>
+          <div class="care-grid" id="today-board"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>关键指标快览</h2>
+              <p>从最近一次复查和最近一次调药记录自动提取，方便快速回看当前状态。</p>
+            </div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <span class="stat-label">TSH</span>
+              <div class="stat-value"><span id="stat-tsh">-</span><span class="stat-unit">uIU/mL</span></div>
+              <span class="status" id="status-tsh">等待记录</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">FT4</span>
+              <div class="stat-value"><span id="stat-ft4">-</span><span class="stat-unit">pmol/L</span></div>
+              <span class="status" id="status-ft4">等待记录</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">甲状腺球蛋白</span>
+              <div class="stat-value"><span id="stat-tg">-</span><span class="stat-unit">ng/mL</span></div>
+              <span class="status neutral" id="status-tg">仅作趋势整理</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">当前剂量</span>
+              <div class="stat-value"><span id="stat-dose">-</span><span class="stat-unit">ug/天</span></div>
+              <span class="status neutral" id="status-dose">来自最近一次用药记录</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-row">
+            <div>
+              <h2>趋势图</h2>
+              <p class="note">查看检查指标与药量变化，复诊时能更快说清楚这段时间发生了什么。</p>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-meta">
+              <span>检查结果趋势</span>
+              <span>最近 6 次记录</span>
+            </div>
+            <svg id="trend-chart" viewBox="0 0 760 280" aria-label="TSH 与 FT4 趋势图"></svg>
+            <div class="legend">
+              <span><i style="background:#1c7a71"></i>TSH</span>
+              <span><i style="background:#c66a56"></i>FT4</span>
+            </div>
+          </div>
+          <div class="chart-card" style="margin-top:1rem;">
+            <div class="chart-meta">
+              <span>药量调整轨迹</span>
+              <span>按日期排列</span>
+            </div>
+            <svg id="dose-chart" viewBox="0 0 760 220" aria-label="药量变化图"></svg>
+            <div class="legend">
+              <span><i style="background:#d5b06b"></i>左甲状腺素剂量</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-row">
+            <div>
+              <h2>复查与调药时间线</h2>
+              <p class="note">把每次复查和每次调药排在一起，更适合回看长期变化。</p>
+            </div>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </article>
+      </section>
+
+      <aside class="column">
+        <article class="panel" id="patient-profile">
+          <div class="section-row">
+            <div>
+              <h2>病人基础信息</h2>
+              <p class="note">保留手术时间、病理信息和自己的提醒，主要用来辅助看历史记录。</p>
+            </div>
+          </div>
+          <form id="profile-form">
+            <div class="field">
+              <label for="patient-name">姓名或备注名</label>
+              <input id="patient-name" name="name" placeholder="例如：自己 / 张女士 / 王先生" />
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="surgery-date">手术日期</label>
+                <input id="surgery-date" name="surgeryDate" type="date" />
+              </div>
+              <div class="field">
+                <label for="diagnosis">病理类型</label>
+                <input id="diagnosis" name="diagnosis" placeholder="例如：甲状腺乳头状癌" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="doctor-note">个人提醒</label>
+              <textarea id="doctor-note" name="note" placeholder="例如：空腹服药、重点关注 TSH 抑制目标、下次复查前把病理报告带上"></textarea>
+            </div>
+            <button class="button primary" type="submit">保存概况</button>
+          </form>
+          <div class="profile-summary" id="profile-summary"></div>
+        </article>
+
+        <article class="panel soft" id="cloud-sync">
+          <div class="section-row">
+            <div>
+              <h2>GitHub 云端同步</h2>
+              <p class="note">适合部署在 GitHub Pages 上后手动同步 JSON 记录。图片仍建议只作本地辅助，不建议一起长期同步，也不要在公共设备保存 Token。</p>
+            </div>
+          </div>
+          <form id="cloud-form">
+            <div class="field-grid">
+              <div class="field">
+                <label for="cloud-owner">GitHub 用户 / 组织</label>
+                <input id="cloud-owner" name="owner" placeholder="例如：your-name" />
+              </div>
+              <div class="field">
+                <label for="cloud-repo">仓库名</label>
+                <input id="cloud-repo" name="repo" placeholder="例如：thyroid-records" />
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="cloud-branch">分支</label>
+                <input id="cloud-branch" name="branch" placeholder="main" />
+              </div>
+              <div class="field">
+                <label for="cloud-path">JSON 路径</label>
+                <input id="cloud-path" name="path" placeholder="data/records.json" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="cloud-token">GitHub Token</label>
+              <input id="cloud-token" name="token" type="password" placeholder="仅用于手动同步；不要在公开页面长期暴露" />
+            </div>
+            <div class="toolbar">
+              <button class="button secondary" type="submit">保存同步设置</button>
+              <button class="button primary" type="button" id="cloud-push">上传到 GitHub</button>
+              <button class="button ghost" type="button" id="cloud-pull">从 GitHub 拉取</button>
+            </div>
+          </form>
+          <div class="profile-summary" id="cloud-summary"></div>
+        </article>
+
+        <article class="panel" id="exam-form">
+          <div class="section-row">
+            <div>
+              <h2>拍化验单并补记录</h2>
+              <p class="note">建议先拍照，再照着把常用数值补进来。重点还是把历史复查记录补完整。</p>
+            </div>
+          </div>
+          <section class="image-workspace">
+            <div class="section-row" style="margin-bottom:0;">
+              <div>
+                <h3>化验单图片</h3>
+                <p class="note">先上传化验单，再在旁边对照录入；保存后图片会绑定到这次复查记录。</p>
+              </div>
+            </div>
+            <div class="toolbar">
+              <button class="button secondary" type="button" id="lab-image-trigger">上传化验单图片</button>
+              <button class="button ghost" type="button" id="lab-image-remove-selected">移除当前图片</button>
+              <button class="button ghost" type="button" id="lab-image-clear">清空待绑定图片</button>
+            </div>
+            <input class="hidden-input" id="lab-image-input" type="file" accept="image/*" multiple />
+            <div class="upload-layout">
+              <div class="image-stage" id="lab-image-stage"></div>
+              <div class="image-thumbs" id="lab-image-thumbs"></div>
+            </div>
+          </section>
+          <section class="assist-box">
+            <div class="section-row" style="margin-bottom:0;">
+              <div>
+                <h3>文字辅助解析</h3>
+                <p class="note">如果手机或系统识图能复制出化验单文字，粘贴到这里后可尝试自动回填常见指标。</p>
+              </div>
+            </div>
+            <div class="assist-grid">
+              <div class="field" style="margin:0;">
+                <label for="ocr-assist-text">化验单文字</label>
+                <textarea id="ocr-assist-text" placeholder="例如：TSH 0.32 uIU/mL；FT4 17.6 pmol/L；Tg 0.10 ng/mL；TgAb 28.6 IU/mL"></textarea>
+              </div>
+              <div class="assist-result">
+                <strong>本次识别候选</strong>
+                <div class="chip-row" id="assist-chips"></div>
+                <div class="toolbar">
+                  <button class="button secondary" type="button" id="assist-parse">尝试解析并回填</button>
+                  <button class="button ghost" type="button" id="assist-clear">清空文字</button>
+                </div>
+              </div>
+            </div>
+          </section>
+          <form id="lab-form">
+            <div class="field-grid">
+              <div class="field">
+                <label for="lab-date">检查日期</label>
+                <input id="lab-date" name="date" type="date" required />
+              </div>
+              <div class="field">
+                <label for="lab-location">医院 / 科室</label>
+                <input id="lab-location" name="location" placeholder="例如：瑞金医院甲乳外科" />
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="lab-tsh">TSH</label>
+                <input id="lab-tsh" name="tsh" type="number" step="0.01" placeholder="0.35" />
+              </div>
+              <div class="field">
+                <label for="lab-ft4">FT4</label>
+                <input id="lab-ft4" name="ft4" type="number" step="0.01" placeholder="16.80" />
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="lab-tg">甲状腺球蛋白 Tg</label>
+                <input id="lab-tg" name="tg" type="number" step="0.01" placeholder="0.10" />
+              </div>
+              <div class="field">
+                <label for="lab-antibody">抗体 / 其他</label>
+                <input id="lab-antibody" name="antibody" placeholder="例如：TgAb 28.6 IU/mL" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="lab-note">补充说明</label>
+              <textarea id="lab-note" name="note" placeholder="例如：这次在停药后复查；医生建议下次 3 个月后复查"></textarea>
+            </div>
+            <button class="button primary" type="submit">保存检查结果</button>
+          </form>
+        </article>
+
+        <article class="panel" id="med-form">
+          <div class="section-row">
+            <div>
+              <h2>记录现在怎么吃药</h2>
+              <p class="note">把药量、频次和调整原因记清楚，下次看病时最有帮助。</p>
+            </div>
+          </div>
+          <form id="medication-form">
+            <div class="field-grid">
+              <div class="field">
+                <label for="med-date">调整日期</label>
+                <input id="med-date" name="date" type="date" required />
+              </div>
+              <div class="field">
+                <label for="med-dose">左甲状腺素剂量（ug/天）</label>
+                <input id="med-dose" name="dose" type="number" step="1" placeholder="100" />
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label for="med-frequency">频次</label>
+                <input id="med-frequency" name="frequency" placeholder="例如：每日一次，早餐前" />
+              </div>
+              <div class="field">
+                <label for="med-reason">调整原因</label>
+                <input id="med-reason" name="reason" placeholder="例如：TSH 偏高，医生建议加量" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="med-note">补充说明</label>
+              <textarea id="med-note" name="note" placeholder="例如：先吃 6 周后复查；注意心悸情况"></textarea>
+            </div>
+            <button class="button primary" type="submit">保存用药记录</button>
+          </form>
+        </article>
+
+        <article class="panel">
+          <div class="section-row">
+            <div>
+              <h2>数据工具</h2>
+              <p class="note">本地导出仍然保留，适合作为云端同步前的备份。</p>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button class="button secondary" type="button" id="export-data">导出 JSON</button>
+            <button class="button secondary" type="button" id="import-trigger">导入 JSON</button>
+            <button class="button secondary" type="button" id="seed-demo">恢复示例</button>
+            <button class="button ghost" type="button" id="clear-data">清空全部</button>
+          </div>
+          <input class="hidden-input" id="import-file" type="file" accept="application/json" />
+          <div class="inline-note" style="margin-top:1rem;">
+            这不是医疗诊断工具。页面会用简单参考范围帮你标注记录状态，但是否需要调药、复查什么项目，仍应由你的医生决定。
+          </div>
+          <div class="footer-note">
+            建议：复查当天拍下化验单，回家后立刻把数值补录进去；每次调药都写上原因，这样时间一长也不会混乱。
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-row">
+            <div>
+              <h2>最近记录</h2>
+              <p class="note">右侧保留最近几条，方便快速核对。</p>
+            </div>
+          </div>
+          <div class="record-list" id="recent-list"></div>
+        </article>
+      </aside>
+    </main>
+  </div>
+
+  <div class="sticky-actions">
+    <button class="button primary" type="button" data-jump="#exam-form">记复查</button>
+    <button class="button secondary" type="button" data-jump="#med-form">记药量</button>
+    <button class="button ghost" type="button" data-jump="#cloud-sync">同步</button>
+  </div>
+  <div class="toast" id="toast"></div>
+  <div class="viewer" id="image-viewer">
+    <div class="viewer-card">
+      <div class="viewer-top">
+        <div>
+          <h3>化验单查看</h3>
+          <p class="note" id="viewer-caption">图片预览</p>
+        </div>
+        <div class="toolbar">
+          <button class="button secondary" type="button" id="viewer-prev">上一张</button>
+          <button class="button secondary" type="button" id="viewer-next">下一张</button>
+          <button class="button ghost" type="button" id="viewer-close">关闭</button>
+        </div>
+      </div>
+      <div class="viewer-stage" id="viewer-stage"></div>
+      <div class="viewer-thumbs" id="viewer-thumbs"></div>
+    </div>
+  </div>
+
+  <script>
+    const storageKey = "thyroid-followup-mobile-v2";
+    const cloudConfigKey = "thyroid-followup-mobile-cloud-config-v2";
+    const imageDbName = "thyroid-followup-mobile-images-v2";
+    const imageStoreName = "labImages";
+
+    const demoData = {
+      profile: {
+        name: "术后康复记录",
+        surgeryDate: "2026-01-12",
+        diagnosis: "甲状腺乳头状癌术后",
+        note: "空腹服用左甲状腺素；复诊时重点查看 TSH 抑制情况与 Tg 变化。"
+      },
+      labs: [
+        {
+          id: "lab-1",
+          date: "2026-02-18",
+          location: "瑞金医院甲乳外科",
+          tsh: 0.18,
+          ft4: 21.6,
+          tg: 0.12,
+          antibody: "TgAb 31 IU/mL",
+          note: "术后第一次复查，医生建议维持抑制。"
+        },
+        {
+          id: "lab-2",
+          date: "2026-03-25",
+          location: "瑞金医院甲乳外科",
+          tsh: 0.42,
+          ft4: 18.3,
+          tg: 0.09,
+          antibody: "TgAb 24 IU/mL",
+          note: "睡眠改善，指标较稳定。"
+        },
+        {
+          id: "lab-3",
+          date: "2026-04-20",
+          location: "瑞金医院甲乳外科",
+          tsh: 1.36,
+          ft4: 16.7,
+          tg: 0.11,
+          antibody: "TgAb 22 IU/mL",
+          note: "医生建议结合病理与风险分层评估是否继续当前剂量。"
+        }
+      ],
+      meds: [
+        {
+          id: "med-1",
+          date: "2026-01-15",
+          dose: 100,
+          frequency: "每日一次，早餐前 30 分钟",
+          reason: "出院后初始方案",
+          note: "服药后半小时再进食。"
+        },
+        {
+          id: "med-2",
+          date: "2026-03-26",
+          dose: 88,
+          frequency: "每日一次，早餐前 30 分钟",
+          reason: "TSH 抑制目标达成，医生建议小幅减量",
+          note: "计划 6 周后复查。"
+        }
+      ]
+    };
+
+    const state = loadState();
+    const cloudConfig = loadCloudConfig();
+    const imageDbPromise = openImageDb();
+    const uiState = {
+      pendingLabImageIds: [],
+      selectedPendingImageId: null,
+      assistMatches: [],
+      viewerImageIds: [],
+      viewerIndex: 0,
+      cloudStatus: cloudConfig.lastSyncedAt ? `上次同步 ${formatDateTime(cloudConfig.lastSyncedAt)}` : "本地模式"
+    };
+
+    const elements = {
+      profileForm: document.getElementById("profile-form"),
+      labForm: document.getElementById("lab-form"),
+      medForm: document.getElementById("medication-form"),
+      timeline: document.getElementById("timeline"),
+      recentList: document.getElementById("recent-list"),
+      toast: document.getElementById("toast"),
+      trendChart: document.getElementById("trend-chart"),
+      doseChart: document.getElementById("dose-chart"),
+      importFile: document.getElementById("import-file"),
+      patientName: document.getElementById("patient-name"),
+      surgeryDate: document.getElementById("surgery-date"),
+      diagnosis: document.getElementById("diagnosis"),
+      doctorNote: document.getElementById("doctor-note"),
+      heroSyncStatus: document.getElementById("hero-sync-status"),
+      todayBoard: document.getElementById("today-board"),
+      profileSummary: document.getElementById("profile-summary"),
+      cloudForm: document.getElementById("cloud-form"),
+      cloudOwner: document.getElementById("cloud-owner"),
+      cloudRepo: document.getElementById("cloud-repo"),
+      cloudBranch: document.getElementById("cloud-branch"),
+      cloudPath: document.getElementById("cloud-path"),
+      cloudToken: document.getElementById("cloud-token"),
+      cloudSummary: document.getElementById("cloud-summary"),
+      labImageInput: document.getElementById("lab-image-input"),
+      labImageStage: document.getElementById("lab-image-stage"),
+      labImageThumbs: document.getElementById("lab-image-thumbs"),
+      ocrAssistText: document.getElementById("ocr-assist-text"),
+      assistChips: document.getElementById("assist-chips"),
+      viewer: document.getElementById("image-viewer"),
+      viewerStage: document.getElementById("viewer-stage"),
+      viewerThumbs: document.getElementById("viewer-thumbs"),
+      viewerCaption: document.getElementById("viewer-caption")
+    };
+
+    hydrateProfileForm();
+    hydrateCloudForm();
+    bindEvents();
+    render();
+    renderPendingImageWorkspace();
+    renderAssistMatches();
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (!saved) {
+          localStorage.setItem(storageKey, JSON.stringify(demoData));
+          return cloneData(demoData);
+        }
+        const parsed = JSON.parse(saved);
+        return {
+          profile: parsed.profile || {},
+          labs: Array.isArray(parsed.labs) ? parsed.labs : [],
+          meds: Array.isArray(parsed.meds) ? parsed.meds : []
+        };
+      } catch (error) {
+        return cloneData(demoData);
+      }
+    }
+
+    function persist() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function loadCloudConfig() {
+      try {
+        const saved = localStorage.getItem(cloudConfigKey);
+        if (!saved) {
+          return { owner: "", repo: "", branch: "main", path: "data/records.json", token: "", lastSyncedAt: "" };
+        }
+        return {
+          owner: "",
+          repo: "",
+          branch: "main",
+          path: "data/records.json",
+          token: "",
+          lastSyncedAt: "",
+          ...JSON.parse(saved)
+        };
+      } catch (error) {
+        return { owner: "", repo: "", branch: "main", path: "data/records.json", token: "", lastSyncedAt: "" };
+      }
+    }
+
+    function persistCloudConfig() {
+      localStorage.setItem(cloudConfigKey, JSON.stringify(cloudConfig));
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-jump]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = document.querySelector(button.dataset.jump);
+          if (target) {
+            window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: "smooth" });
+          }
+        });
+      });
+
+      elements.profileForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(elements.profileForm);
+        state.profile = {
+          name: formData.get("name")?.toString().trim() || "",
+          surgeryDate: formData.get("surgeryDate")?.toString() || "",
+          diagnosis: formData.get("diagnosis")?.toString().trim() || "",
+          note: formData.get("note")?.toString().trim() || ""
+        };
+        persist();
+        render();
+        showToast("病人概况已保存");
+      });
+
+      elements.cloudForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        saveCloudConfigFromForm();
+        renderCloudSummary();
+        showToast("云端同步设置已保存");
+      });
+
+      elements.labForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(elements.labForm);
+        const record = {
+          id: "lab-" + Date.now(),
+          date: formData.get("date")?.toString() || "",
+          location: formData.get("location")?.toString().trim() || "",
+          tsh: parseNumber(formData.get("tsh")),
+          ft4: parseNumber(formData.get("ft4")),
+          tg: parseNumber(formData.get("tg")),
+          antibody: formData.get("antibody")?.toString().trim() || "",
+          note: formData.get("note")?.toString().trim() || "",
+          imageIds: [...uiState.pendingLabImageIds]
+        };
+        state.labs.push(record);
+        state.labs.sort(sortByDateDesc);
+        persist();
+        elements.labForm.reset();
+        uiState.pendingLabImageIds = [];
+        uiState.selectedPendingImageId = null;
+        elements.ocrAssistText.value = "";
+        uiState.assistMatches = [];
+        render();
+        renderPendingImageWorkspace();
+        renderAssistMatches();
+        showToast("检查结果已加入时间线");
+      });
+
+      elements.medForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(elements.medForm);
+        const record = {
+          id: "med-" + Date.now(),
+          date: formData.get("date")?.toString() || "",
+          dose: parseNumber(formData.get("dose")),
+          frequency: formData.get("frequency")?.toString().trim() || "",
+          reason: formData.get("reason")?.toString().trim() || "",
+          note: formData.get("note")?.toString().trim() || ""
+        };
+        state.meds.push(record);
+        state.meds.sort(sortByDateDesc);
+        persist();
+        elements.medForm.reset();
+        render();
+        showToast("用药调整已保存");
+      });
+
+      document.getElementById("export-data").addEventListener("click", exportData);
+      document.getElementById("import-trigger").addEventListener("click", () => elements.importFile.click());
+      document.getElementById("cloud-push").addEventListener("click", pushCloudData);
+      document.getElementById("cloud-pull").addEventListener("click", pullCloudData);
+      document.getElementById("seed-demo").addEventListener("click", async () => {
+        await clearImageStore();
+        uiState.pendingLabImageIds = [];
+        uiState.selectedPendingImageId = null;
+        overwriteState(cloneData(demoData));
+        renderPendingImageWorkspace();
+        showToast("已恢复示例数据");
+      });
+      document.getElementById("clear-data").addEventListener("click", async () => {
+        if (!confirm("确认清空所有检查结果和用药记录吗？")) {
+          return;
+        }
+        await clearImageStore();
+        uiState.pendingLabImageIds = [];
+        uiState.selectedPendingImageId = null;
+        overwriteState({ profile: {}, labs: [], meds: [] });
+        renderPendingImageWorkspace();
+        showToast("全部记录已清空");
+      });
+
+      elements.importFile.addEventListener("change", async (event) => {
+        const [file] = event.target.files || [];
+        if (!file) {
+          return;
+        }
+        try {
+          const text = await file.text();
+          const incoming = JSON.parse(text);
+          await clearImageStore();
+          if (Array.isArray(incoming.imageAssets)) {
+            for (const asset of incoming.imageAssets) {
+              await putImageRecord(asset);
+            }
+          }
+          overwriteState({
+            profile: incoming.profile || {},
+            labs: Array.isArray(incoming.labs) ? incoming.labs : [],
+            meds: Array.isArray(incoming.meds) ? incoming.meds : []
+          });
+          uiState.pendingLabImageIds = [];
+          uiState.selectedPendingImageId = null;
+          renderPendingImageWorkspace();
+          showToast("导入成功");
+        } catch (error) {
+          showToast("导入失败，请确认文件格式正确");
+        } finally {
+          elements.importFile.value = "";
+        }
+      });
+
+      elements.timeline.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-delete]");
+        if (button) {
+          const { type, id } = button.dataset;
+          if (type === "lab") {
+            const record = state.labs.find((item) => item.id === id);
+            state.labs = state.labs.filter((item) => item.id !== id);
+            await deleteImageRecords(record?.imageIds || []);
+          }
+          if (type === "med") {
+            state.meds = state.meds.filter((item) => item.id !== id);
+          }
+          persist();
+          render();
+          showToast("该条记录已删除");
+          return;
+        }
+
+        const imageButton = event.target.closest("[data-open-images]");
+        if (imageButton) {
+          const imageIds = (imageButton.dataset.imageIds || "").split(",").filter(Boolean);
+          openImageViewer(imageIds, Number(imageButton.dataset.index || 0));
+        }
+      });
+
+      elements.recentList.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-delete]");
+        if (button) {
+          const { type, id } = button.dataset;
+          if (type === "lab") {
+            const record = state.labs.find((item) => item.id === id);
+            state.labs = state.labs.filter((item) => item.id !== id);
+            await deleteImageRecords(record?.imageIds || []);
+          }
+          if (type === "med") {
+            state.meds = state.meds.filter((item) => item.id !== id);
+          }
+          persist();
+          render();
+          showToast("该条记录已删除");
+          return;
+        }
+
+        const imageButton = event.target.closest("[data-open-images]");
+        if (imageButton) {
+          const imageIds = (imageButton.dataset.imageIds || "").split(",").filter(Boolean);
+          openImageViewer(imageIds, Number(imageButton.dataset.index || 0));
+        }
+      });
+
+      document.getElementById("lab-image-trigger").addEventListener("click", () => elements.labImageInput.click());
+      document.getElementById("lab-image-remove-selected").addEventListener("click", removeSelectedPendingImage);
+      document.getElementById("lab-image-clear").addEventListener("click", clearPendingImages);
+      elements.labImageInput.addEventListener("change", handleLabImageUpload);
+      elements.labImageStage.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-open-images]");
+        if (!button) {
+          return;
+        }
+        const imageIds = (button.dataset.imageIds || "").split(",").filter(Boolean);
+        openImageViewer(imageIds, Number(button.dataset.index || 0));
+      });
+      elements.labImageThumbs.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-pending-image-id]");
+        if (!button) {
+          return;
+        }
+        uiState.selectedPendingImageId = button.dataset.pendingImageId;
+        renderPendingImageWorkspace();
+      });
+
+      document.getElementById("assist-parse").addEventListener("click", parseAssistText);
+      document.getElementById("assist-clear").addEventListener("click", () => {
+        elements.ocrAssistText.value = "";
+        uiState.assistMatches = [];
+        renderAssistMatches();
+      });
+
+      document.getElementById("viewer-close").addEventListener("click", closeImageViewer);
+      document.getElementById("viewer-prev").addEventListener("click", () => moveViewer(-1));
+      document.getElementById("viewer-next").addEventListener("click", () => moveViewer(1));
+      elements.viewer.addEventListener("click", (event) => {
+        if (event.target === elements.viewer) {
+          closeImageViewer();
+        }
+      });
+      elements.viewerThumbs.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-viewer-index]");
+        if (!button) {
+          return;
+        }
+        uiState.viewerIndex = Number(button.dataset.viewerIndex || 0);
+        renderImageViewer();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (!elements.viewer.classList.contains("open")) {
+          return;
+        }
+        if (event.key === "Escape") closeImageViewer();
+        if (event.key === "ArrowLeft") moveViewer(-1);
+        if (event.key === "ArrowRight") moveViewer(1);
+      });
+    }
+
+    function overwriteState(nextState) {
+      state.profile = nextState.profile || {};
+      state.labs = Array.isArray(nextState.labs) ? nextState.labs.sort(sortByDateDesc) : [];
+      state.meds = Array.isArray(nextState.meds) ? nextState.meds.sort(sortByDateDesc) : [];
+      persist();
+      hydrateProfileForm();
+      render();
+    }
+
+    function hydrateProfileForm() {
+      elements.patientName.value = state.profile.name || "";
+      elements.surgeryDate.value = state.profile.surgeryDate || "";
+      elements.diagnosis.value = state.profile.diagnosis || "";
+      elements.doctorNote.value = state.profile.note || "";
+    }
+
+    function hydrateCloudForm() {
+      elements.cloudOwner.value = cloudConfig.owner || "";
+      elements.cloudRepo.value = cloudConfig.repo || "";
+      elements.cloudBranch.value = cloudConfig.branch || "main";
+      elements.cloudPath.value = cloudConfig.path || "data/records.json";
+      elements.cloudToken.value = cloudConfig.token || "";
+      renderCloudSummary();
+    }
+
+    function render() {
+      const latestLab = [...state.labs].sort(sortByDateDesc)[0];
+      const latestMed = [...state.meds].sort(sortByDateDesc)[0];
+      const totalCount = state.labs.length + state.meds.length;
+
+      document.getElementById("hero-last-check").textContent = latestLab ? formatDate(latestLab.date) : "暂无";
+      document.getElementById("hero-current-dose").textContent = latestMed?.dose ? latestMed.dose + " ug/天" : "未记录";
+      elements.heroSyncStatus.textContent = uiState.cloudStatus;
+      document.getElementById("hero-count").textContent = totalCount + " 条";
+
+      updateMetricCard("tsh", latestLab?.tsh, getRangeStatus("tsh", latestLab?.tsh));
+      updateMetricCard("ft4", latestLab?.ft4, getRangeStatus("ft4", latestLab?.ft4));
+      updateMetricCard("tg", latestLab?.tg, { text: "仅作趋势整理", kind: "neutral" });
+      document.getElementById("stat-dose").textContent = latestMed?.dose ?? "-";
+
+      renderTodayBoard(latestLab, latestMed);
+      renderProfileSummary();
+      renderTimeline();
+      renderRecentList();
+      renderTrendChart();
+      renderDoseChart();
+    }
+
+    function renderTodayBoard(latestLab, latestMed) {
+      const todayCards = [
+        {
+          title: "累计复查记录",
+          text: state.labs.length ? `目前共保存 ${state.labs.length} 次复查，最近一次是 ${formatDate(latestLab.date)}。` : "还没有复查记录，可以先录入第一条。"
+        },
+        {
+          title: "累计用药调整",
+          text: state.meds.length ? `目前共保存 ${state.meds.length} 次调药，当前记录 ${latestMed.dose || "-"} ug/天。` : "还没有用药记录，建议先补上当前剂量。"
+        },
+        {
+          title: "最近一次复查地点",
+          text: latestLab?.location ? `最近一次是在 ${latestLab.location}。` : "最近一次复查地点还没有填写。"
+        },
+        {
+          title: "同步状态",
+          text: uiState.cloudStatus
+        }
+      ];
+
+      elements.todayBoard.innerHTML = todayCards.map((item) => `
+        <div class="care-card">
+          <strong>${item.title}</strong>
+          <p>${escapeHtml(item.text)}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderProfileSummary() {
+      const lines = [
+        ["病人", state.profile.name || "未填写"],
+        ["手术日期", state.profile.surgeryDate ? formatDate(state.profile.surgeryDate) : "未填写"],
+        ["病理类型", state.profile.diagnosis || "未填写"],
+        ["个人提醒", state.profile.note || "未填写"]
+      ];
+      elements.profileSummary.innerHTML = lines.map(([label, value]) => `
+        <div class="summary-line">
+          <span>${label}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderCloudSummary() {
+      const lines = [
+        ["仓库", cloudConfig.owner && cloudConfig.repo ? `${cloudConfig.owner}/${cloudConfig.repo}` : "未填写"],
+        ["分支", cloudConfig.branch || "main"],
+        ["文件路径", cloudConfig.path || "data/records.json"],
+        ["上次同步", cloudConfig.lastSyncedAt ? formatDateTime(cloudConfig.lastSyncedAt) : "暂无"]
+      ];
+      elements.cloudSummary.innerHTML = lines.map(([label, value]) => `
+        <div class="summary-line">
+          <span>${label}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function updateMetricCard(key, value, status) {
+      document.getElementById("stat-" + key).textContent = value ?? "-";
+      const badge = document.getElementById("status-" + key);
+      badge.textContent = status.text;
+      badge.className = "status" + (status.kind === "warn" ? " warn" : status.kind === "neutral" ? " neutral" : "");
+    }
+
+    function getRangeStatus(type, value) {
+      if (typeof value !== "number" || Number.isNaN(value)) {
+        return { text: "等待记录", kind: "" };
+      }
+      if (type === "tsh") {
+        if (value < 0.27) return { text: "偏低", kind: "warn" };
+        if (value > 4.2) return { text: "偏高", kind: "warn" };
+        return { text: "范围内", kind: "" };
+      }
+      if (type === "ft4") {
+        if (value < 12) return { text: "偏低", kind: "warn" };
+        if (value > 22) return { text: "偏高", kind: "warn" };
+        return { text: "范围内", kind: "" };
+      }
+      return { text: "仅作趋势整理", kind: "neutral" };
+    }
+
+    function renderTimeline() {
+      const merged = [
+        ...state.labs.map((item) => ({ ...item, itemType: "lab" })),
+        ...state.meds.map((item) => ({ ...item, itemType: "med" }))
+      ].sort(sortByDateDesc);
+
+      if (!merged.length) {
+        elements.timeline.innerHTML = '<div class="empty">还没有记录。可以先在右侧录入第一条检查结果或用药调整。</div>';
+        return;
+      }
+
+      elements.timeline.innerHTML = merged.map((item) => {
+        if (item.itemType === "lab") {
+          return `
+            <div class="timeline-item">
+              <div class="timeline-date">${formatDate(item.date).replaceAll("-", "<br />")}</div>
+              <div class="timeline-card">
+                <div class="pill-row">
+                  <span class="pill">复查结果</span>
+                </div>
+                <h3>${escapeHtml(item.location || "未填写医院")}</h3>
+                <div class="meta">TSH ${fallbackValue(item.tsh)} · FT4 ${fallbackValue(item.ft4)} · Tg ${fallbackValue(item.tg)}</div>
+                <div class="chip-row">
+                  ${item.antibody ? `<span class="chip">${escapeHtml(item.antibody)}</span>` : ""}
+                  ${item.note ? `<span class="chip">${escapeHtml(item.note)}</span>` : ""}
+                </div>
+                ${renderImageLink(item.imageIds)}
+                <div style="margin-top:0.8rem;">
+                  <button class="text-button" type="button" data-delete data-type="lab" data-id="${item.id}">删除记录</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="timeline-item">
+            <div class="timeline-date">${formatDate(item.date).replaceAll("-", "<br />")}</div>
+            <div class="timeline-card">
+              <div class="pill-row">
+                <span class="pill med">用药调整</span>
+              </div>
+              <h3>${fallbackValue(item.dose)} ug/天</h3>
+              <div class="meta">${escapeHtml(item.frequency || "未填写频次")}</div>
+              <div class="chip-row">
+                ${item.reason ? `<span class="chip">${escapeHtml(item.reason)}</span>` : ""}
+                ${item.note ? `<span class="chip">${escapeHtml(item.note)}</span>` : ""}
+              </div>
+              <div style="margin-top:0.8rem;">
+                <button class="text-button" type="button" data-delete data-type="med" data-id="${item.id}">删除记录</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      hydrateImageButtons(elements.timeline);
+    }
+
+    function renderRecentList() {
+      const recent = [
+        ...state.labs.map((item) => ({ ...item, itemType: "lab" })),
+        ...state.meds.map((item) => ({ ...item, itemType: "med" }))
+      ].sort(sortByDateDesc).slice(0, 4);
+
+      if (!recent.length) {
+        elements.recentList.innerHTML = '<div class="empty">最近记录会出现在这里。</div>';
+        return;
+      }
+
+      elements.recentList.innerHTML = recent.map((item) => `
+        <div class="record-row">
+          <div>
+            <strong>${item.itemType === "lab" ? "复查结果" : "用药调整"} · ${formatDate(item.date)}</strong>
+            <small>${item.itemType === "lab"
+              ? `TSH ${fallbackValue(item.tsh)} / FT4 ${fallbackValue(item.ft4)} / Tg ${fallbackValue(item.tg)}`
+              : `${fallbackValue(item.dose)} ug/天 · ${escapeHtml(item.frequency || "未填写频次")}`}</small>
+            ${item.itemType === "lab" ? renderImageLink(item.imageIds) : ""}
+          </div>
+          <button class="text-button" type="button" data-delete data-type="${item.itemType}" data-id="${item.id}">删除</button>
+        </div>
+      `).join("");
+      hydrateImageButtons(elements.recentList);
+    }
+
+    function renderTrendChart() {
+      const items = [...state.labs].sort((a, b) => new Date(a.date) - new Date(b.date)).slice(-6);
+      if (!items.length) {
+        elements.trendChart.innerHTML = emptyChartMarkup("暂无检查结果");
+        return;
+      }
+
+      const width = 760;
+      const height = 280;
+      const padding = { top: 32, right: 24, bottom: 56, left: 52 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      const tshMax = Math.max(...items.map((item) => item.tsh || 0), 1);
+      const ft4Max = Math.max(...items.map((item) => item.ft4 || 0), 1);
+      const maxValue = Math.max(tshMax, ft4Max) * 1.15;
+
+      const points = items.map((item, index) => {
+        const x = padding.left + (chartWidth / Math.max(items.length - 1, 1)) * index;
+        return {
+          x,
+          tshY: padding.top + chartHeight - ((item.tsh || 0) / maxValue) * chartHeight,
+          ft4Y: padding.top + chartHeight - ((item.ft4 || 0) / maxValue) * chartHeight,
+          date: item.date,
+          tsh: item.tsh,
+          ft4: item.ft4
+        };
+      });
+
+      const grid = Array.from({ length: 4 }, (_, index) => {
+        const y = padding.top + (chartHeight / 3) * index;
+        return `<line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="rgba(35,49,53,0.1)" stroke-dasharray="4 8" />`;
+      }).join("");
+
+      const tshPolyline = points.map((point) => `${point.x},${point.tshY}`).join(" ");
+      const ft4Polyline = points.map((point) => `${point.x},${point.ft4Y}`).join(" ");
+
+      const labels = points.map((point) => `
+        <text x="${point.x}" y="${height - 18}" text-anchor="middle" class="canvas-label">${shortDate(point.date)}</text>
+      `).join("");
+
+      const tshDots = points.map((point) => `
+        <circle cx="${point.x}" cy="${point.tshY}" r="5" fill="#1c7a71" />
+        <title>${point.date} TSH ${fallbackValue(point.tsh)}</title>
+      `).join("");
+
+      const ft4Dots = points.map((point) => `
+        <circle cx="${point.x}" cy="${point.ft4Y}" r="5" fill="#c66a56" />
+        <title>${point.date} FT4 ${fallbackValue(point.ft4)}</title>
+      `).join("");
+
+      elements.trendChart.innerHTML = `
+        ${grid}
+        <line x1="${padding.left}" y1="${height - padding.bottom}" x2="${width - padding.right}" y2="${height - padding.bottom}" stroke="rgba(35,49,53,0.16)" />
+        <polyline fill="none" stroke="#1c7a71" stroke-width="4" points="${tshPolyline}" stroke-linecap="round" stroke-linejoin="round" />
+        <polyline fill="none" stroke="#c66a56" stroke-width="4" points="${ft4Polyline}" stroke-linecap="round" stroke-linejoin="round" />
+        ${tshDots}
+        ${ft4Dots}
+        ${labels}
+      `;
+    }
+
+    function renderDoseChart() {
+      const items = [...state.meds].sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (!items.length) {
+        elements.doseChart.innerHTML = emptyChartMarkup("暂无用药调整记录");
+        return;
+      }
+
+      const width = 760;
+      const height = 220;
+      const padding = { top: 24, right: 24, bottom: 54, left: 40 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const maxDose = Math.max(...items.map((item) => item.dose || 0), 1) * 1.1;
+      const barWidth = Math.min(72, chartWidth / Math.max(items.length * 1.4, 1));
+
+      elements.doseChart.innerHTML = items.map((item, index) => {
+        const gap = chartWidth / items.length;
+        const x = padding.left + gap * index + (gap - barWidth) / 2;
+        const value = item.dose || 0;
+        const barHeight = (value / maxDose) * chartHeight;
+        const y = padding.top + chartHeight - barHeight;
+        return `
+          <g>
+            <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="18" fill="rgba(213,176,107,0.88)" />
+            <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" class="canvas-label">${fallbackValue(item.dose)}</text>
+            <text x="${x + barWidth / 2}" y="${height - 18}" text-anchor="middle" class="canvas-label">${shortDate(item.date)}</text>
+          </g>
+        `;
+      }).join("") + `<line x1="${padding.left}" y1="${height - padding.bottom}" x2="${width - padding.right}" y2="${height - padding.bottom}" stroke="rgba(35,49,53,0.16)" />`;
+    }
+
+    function emptyChartMarkup(text) {
+      return `
+        <rect x="20" y="20" width="720" height="180" rx="28" fill="rgba(255,255,255,0.46)" stroke="rgba(35,49,53,0.08)" stroke-dasharray="8 10" />
+        <text x="380" y="120" text-anchor="middle" class="canvas-label">${text}</text>
+      `;
+    }
+
+    async function exportData() {
+      const imageAssets = await getImageRecords(getAllImageIdsFromState());
+      const payload = { ...state, imageAssets };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "thyroid-followup-data.json";
+      anchor.click();
+      URL.revokeObjectURL(url);
+      showToast("数据已导出");
+    }
+
+    function saveCloudConfigFromForm() {
+      const formData = new FormData(elements.cloudForm);
+      cloudConfig.owner = formData.get("owner")?.toString().trim() || "";
+      cloudConfig.repo = formData.get("repo")?.toString().trim() || "";
+      cloudConfig.branch = formData.get("branch")?.toString().trim() || "main";
+      cloudConfig.path = formData.get("path")?.toString().trim() || "data/records.json";
+      cloudConfig.token = formData.get("token")?.toString().trim() || "";
+      persistCloudConfig();
+    }
+
+    function buildCloudPayload() {
+      return {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        profile: state.profile || {},
+        labs: state.labs || [],
+        meds: state.meds || []
+      };
+    }
+
+    function assertCloudConfig() {
+      saveCloudConfigFromForm();
+      if (!cloudConfig.owner || !cloudConfig.repo || !cloudConfig.path || !cloudConfig.token) {
+        throw new Error("请先填写完整的 GitHub 仓库、路径和 Token。");
+      }
+    }
+
+    function encodeBase64Unicode(text) {
+      const bytes = new TextEncoder().encode(text);
+      let binary = "";
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      return btoa(binary);
+    }
+
+    function decodeBase64Unicode(base64) {
+      const binary = atob(base64.replace(/\n/g, ""));
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
+    function getGitHubContentUrl() {
+      const encodedPath = cloudConfig.path.split("/").map(encodeURIComponent).join("/");
+      return `https://api.github.com/repos/${cloudConfig.owner}/${cloudConfig.repo}/contents/${encodedPath}`;
+    }
+
+    async function githubRequest(url, options = {}) {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${cloudConfig.token}`,
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+
+      if (response.status === 404) {
+        return { missing: true };
+      }
+
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `GitHub 请求失败：${response.status}`);
+      }
+
+      return response.json();
+    }
+
+    async function pushCloudData() {
+      try {
+        assertCloudConfig();
+        const url = getGitHubContentUrl();
+        const existing = await githubRequest(`${url}?ref=${encodeURIComponent(cloudConfig.branch)}`);
+        const payload = buildCloudPayload();
+        const body = {
+          message: `Update thyroid follow-up records at ${new Date().toISOString()}`,
+          content: encodeBase64Unicode(JSON.stringify(payload, null, 2)),
+          branch: cloudConfig.branch
+        };
+        if (!existing.missing && existing.sha) {
+          body.sha = existing.sha;
+        }
+        await githubRequest(url, { method: "PUT", body: JSON.stringify(body) });
+        cloudConfig.lastSyncedAt = new Date().toISOString();
+        persistCloudConfig();
+        uiState.cloudStatus = `上次同步 ${formatDateTime(cloudConfig.lastSyncedAt)}`;
+        renderCloudSummary();
+        renderTodayBoard([...state.labs].sort(sortByDateDesc)[0], [...state.meds].sort(sortByDateDesc)[0]);
+        elements.heroSyncStatus.textContent = uiState.cloudStatus;
+        showToast("已上传到 GitHub");
+      } catch (error) {
+        uiState.cloudStatus = "云端同步失败";
+        elements.heroSyncStatus.textContent = uiState.cloudStatus;
+        renderCloudSummary();
+        showToast(error.message || "上传失败");
+      }
+    }
+
+    async function pullCloudData() {
+      try {
+        assertCloudConfig();
+        const url = getGitHubContentUrl();
+        const file = await githubRequest(`${url}?ref=${encodeURIComponent(cloudConfig.branch)}`);
+        if (file.missing || !file.content) {
+          throw new Error("仓库里还没有这个 JSON 文件。");
+        }
+        const payload = JSON.parse(decodeBase64Unicode(file.content));
+        overwriteState({
+          profile: payload.profile || {},
+          labs: Array.isArray(payload.labs) ? payload.labs : [],
+          meds: Array.isArray(payload.meds) ? payload.meds : []
+        });
+        cloudConfig.lastSyncedAt = new Date().toISOString();
+        persistCloudConfig();
+        uiState.cloudStatus = `上次同步 ${formatDateTime(cloudConfig.lastSyncedAt)}`;
+        renderCloudSummary();
+        elements.heroSyncStatus.textContent = uiState.cloudStatus;
+        showToast("已从 GitHub 拉取");
+      } catch (error) {
+        uiState.cloudStatus = "云端拉取失败";
+        elements.heroSyncStatus.textContent = uiState.cloudStatus;
+        renderCloudSummary();
+        showToast(error.message || "拉取失败");
+      }
+    }
+
+    function cloneData(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function getAllImageIdsFromState() {
+      const ids = new Set();
+      state.labs.forEach((item) => {
+        (item.imageIds || []).forEach((id) => ids.add(id));
+      });
+      return [...ids];
+    }
+
+    function renderImageLink(imageIds) {
+      if (!Array.isArray(imageIds) || !imageIds.length) {
+        return "";
+      }
+      return `
+        <div class="attachment-line">
+          <button class="attachment-button" type="button" data-open-images data-image-ids="${imageIds.join(",")}" data-index="0">
+            <span>查看化验单 ${imageIds.length} 张</span>
+          </button>
+        </div>
+      `;
+    }
+
+    async function hydrateImageButtons(root) {
+      const buttons = [...root.querySelectorAll("[data-open-images]")];
+      for (const button of buttons) {
+        const ids = (button.dataset.imageIds || "").split(",").filter(Boolean);
+        if (!ids.length) {
+          continue;
+        }
+        const [first] = await getImageRecords([ids[0]]);
+        if (!first || button.querySelector("img")) {
+          continue;
+        }
+        button.innerHTML = `
+          <img src="${first.dataUrl}" alt="化验单缩略图" />
+          <span>
+            <strong>查看化验单</strong>
+            <small>${ids.length} 张图片</small>
+          </span>
+        `;
+      }
+    }
+
+    async function handleLabImageUpload(event) {
+      const files = [...(event.target.files || [])];
+      if (!files.length) {
+        return;
+      }
+      let added = 0;
+      for (const file of files) {
+        try {
+          const record = await createImageRecord(file);
+          await putImageRecord(record);
+          uiState.pendingLabImageIds.push(record.id);
+          uiState.selectedPendingImageId = record.id;
+          added += 1;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      elements.labImageInput.value = "";
+      renderPendingImageWorkspace();
+      showToast(added ? `已加入 ${added} 张化验单图片` : "图片处理失败");
+    }
+
+    async function clearPendingImages() {
+      if (!uiState.pendingLabImageIds.length) {
+        return;
+      }
+      await deleteImageRecords(uiState.pendingLabImageIds);
+      uiState.pendingLabImageIds = [];
+      uiState.selectedPendingImageId = null;
+      renderPendingImageWorkspace();
+      showToast("待绑定图片已清空");
+    }
+
+    async function removeSelectedPendingImage() {
+      if (!uiState.selectedPendingImageId) {
+        return;
+      }
+      await deleteImageRecords([uiState.selectedPendingImageId]);
+      uiState.pendingLabImageIds = uiState.pendingLabImageIds.filter((id) => id !== uiState.selectedPendingImageId);
+      uiState.selectedPendingImageId = uiState.pendingLabImageIds[0] || null;
+      renderPendingImageWorkspace();
+      showToast("当前图片已移除");
+    }
+
+    async function renderPendingImageWorkspace() {
+      if (!uiState.pendingLabImageIds.length) {
+        elements.labImageStage.innerHTML = '<div class="empty">还没有待绑定的化验单图片。上传后会先显示在这里，保存检查结果时自动和这次复查关联。</div>';
+        elements.labImageThumbs.innerHTML = '<div class="empty">缩略图列表会显示在这里。</div>';
+        return;
+      }
+
+      if (!uiState.selectedPendingImageId || !uiState.pendingLabImageIds.includes(uiState.selectedPendingImageId)) {
+        uiState.selectedPendingImageId = uiState.pendingLabImageIds[0];
+      }
+
+      const records = await getImageRecords(uiState.pendingLabImageIds);
+      const active = records.find((item) => item.id === uiState.selectedPendingImageId) || records[0];
+      elements.labImageStage.innerHTML = active ? `
+        <div class="section-row" style="margin-bottom:0;">
+          <div>
+            <strong>${escapeHtml(active.name || "化验单图片")}</strong>
+            <p class="note">${active.width || "-"} × ${active.height || "-"} · ${formatDateTime(active.createdAt)}</p>
+          </div>
+          <button class="button secondary" type="button" data-open-images data-image-ids="${uiState.pendingLabImageIds.join(",")}" data-index="${records.findIndex((item) => item.id === active.id)}">放大查看</button>
+        </div>
+        <img src="${active.dataUrl}" alt="当前化验单预览" />
+      ` : '<div class="empty">图片加载中，请稍候。</div>';
+
+      elements.labImageThumbs.innerHTML = records.map((item) => `
+        <button class="image-thumb${item.id === active.id ? " active" : ""}" type="button" data-pending-image-id="${item.id}">
+          <img src="${item.dataUrl}" alt="${escapeHtml(item.name || "化验单图片")}" />
+          <span>
+            <strong>${escapeHtml(item.name || "化验单图片")}</strong>
+            <small>${formatDateTime(item.createdAt)}</small>
+          </span>
+        </button>
+      `).join("");
+    }
+
+    function parseAssistText() {
+      const text = elements.ocrAssistText.value.trim();
+      if (!text) {
+        showToast("先粘贴一些化验单文字");
+        return;
+      }
+
+      const matches = [];
+      const tsh = extractLabValue(text, ["TSH", "促甲状腺激素"]);
+      const ft4 = extractLabValue(text, ["FT4", "游离甲状腺素", "游离T4"]);
+      const tg = extractLabValue(text, [
+        /(?:甲状腺球蛋白)(?!抗体)[^\d]{0,12}(\d+(?:\.\d+)?)/i,
+        /\bTg\b(?!Ab)[^\d]{0,12}(\d+(?:\.\d+)?)/i
+      ]);
+      const tgAb = extractLabValue(text, [
+        /(?:甲状腺球蛋白抗体)[^\d]{0,12}(\d+(?:\.\d+)?)/i,
+        /\bTgAb\b[^\d]{0,12}(\d+(?:\.\d+)?)/i
+      ]);
+
+      if (tsh !== null) {
+        document.getElementById("lab-tsh").value = tsh;
+        matches.push("TSH " + tsh);
+      }
+      if (ft4 !== null) {
+        document.getElementById("lab-ft4").value = ft4;
+        matches.push("FT4 " + ft4);
+      }
+      if (tg !== null) {
+        document.getElementById("lab-tg").value = tg;
+        matches.push("Tg " + tg);
+      }
+      if (tgAb !== null) {
+        document.getElementById("lab-antibody").value = "TgAb " + tgAb;
+        matches.push("TgAb " + tgAb);
+      }
+
+      uiState.assistMatches = matches;
+      renderAssistMatches();
+      showToast(matches.length ? `已回填 ${matches.length} 个字段` : "没识别到常见指标，可手动录入");
+    }
+
+    function renderAssistMatches() {
+      elements.assistChips.innerHTML = uiState.assistMatches.length
+        ? uiState.assistMatches.map((item) => `<span class="chip">${escapeHtml(item)}</span>`).join("")
+        : '<span class="helper">等待识别结果</span>';
+    }
+
+    function extractLabValue(text, labels) {
+      for (const label of labels) {
+        const pattern = label instanceof RegExp
+          ? label
+          : new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[^\\d]{0,12}(\\d+(?:\\.\\d+)?)", "i");
+        const matched = text.match(pattern);
+        if (matched) {
+          return matched[1];
+        }
+      }
+      return null;
+    }
+
+    function openImageViewer(imageIds, startIndex) {
+      if (!imageIds.length) {
+        return;
+      }
+      uiState.viewerImageIds = imageIds;
+      uiState.viewerIndex = Math.max(0, Math.min(startIndex, imageIds.length - 1));
+      elements.viewer.classList.add("open");
+      renderImageViewer();
+    }
+
+    function closeImageViewer() {
+      elements.viewer.classList.remove("open");
+      uiState.viewerImageIds = [];
+      uiState.viewerIndex = 0;
+    }
+
+    function moveViewer(step) {
+      if (!uiState.viewerImageIds.length) {
+        return;
+      }
+      uiState.viewerIndex = (uiState.viewerIndex + step + uiState.viewerImageIds.length) % uiState.viewerImageIds.length;
+      renderImageViewer();
+    }
+
+    async function renderImageViewer() {
+      const ids = uiState.viewerImageIds;
+      if (!ids.length) {
+        return;
+      }
+      const records = await getImageRecords(ids);
+      const current = records[uiState.viewerIndex];
+      if (!current) {
+        elements.viewerStage.innerHTML = '<div class="empty">图片不存在或已被删除。</div>';
+        return;
+      }
+      elements.viewerCaption.textContent = `${current.name || "化验单图片"} · ${formatDateTime(current.createdAt)}`;
+      elements.viewerStage.innerHTML = `<img src="${current.dataUrl}" alt="${escapeHtml(current.name || "化验单图片")}" />`;
+      elements.viewerThumbs.innerHTML = records.map((item, index) => `
+        <button type="button" class="${index === uiState.viewerIndex ? "active" : ""}" data-viewer-index="${index}">
+          <img src="${item.dataUrl}" alt="${escapeHtml(item.name || "化验单缩略图")}" />
+        </button>
+      `).join("");
+    }
+
+    function openImageDb() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+          reject(new Error("IndexedDB unavailable"));
+          return;
+        }
+        const request = indexedDB.open(imageDbName, 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(imageStoreName)) {
+            db.createObjectStore(imageStoreName, { keyPath: "id" });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function putImageRecord(record) {
+      const db = await imageDbPromise;
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(imageStoreName, "readwrite");
+        const store = transaction.objectStore(imageStoreName);
+        store.put(record);
+        transaction.oncomplete = () => resolve(record);
+        transaction.onerror = () => reject(transaction.error);
+      });
+    }
+
+    async function getImageRecord(id) {
+      const db = await imageDbPromise;
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(imageStoreName, "readonly");
+        const store = transaction.objectStore(imageStoreName);
+        const request = store.get(id);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function getImageRecords(ids) {
+      const results = [];
+      for (const id of ids) {
+        const record = await getImageRecord(id);
+        if (record) {
+          results.push(record);
+        }
+      }
+      return results;
+    }
+
+    async function deleteImageRecords(ids) {
+      if (!ids.length) {
+        return;
+      }
+      const db = await imageDbPromise;
+      await new Promise((resolve, reject) => {
+        const transaction = db.transaction(imageStoreName, "readwrite");
+        const store = transaction.objectStore(imageStoreName);
+        ids.forEach((id) => store.delete(id));
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      });
+    }
+
+    async function clearImageStore() {
+      const db = await imageDbPromise;
+      await new Promise((resolve, reject) => {
+        const transaction = db.transaction(imageStoreName, "readwrite");
+        const store = transaction.objectStore(imageStoreName);
+        store.clear();
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      });
+    }
+
+    async function createImageRecord(file) {
+      const dataUrl = await fileToDataUrl(file);
+      const image = await loadImage(dataUrl);
+      const maxEdge = 1600;
+      const scale = Math.min(1, maxEdge / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#fff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return {
+        id: "img-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+        name: file.name,
+        createdAt: new Date().toISOString(),
+        width: canvas.width,
+        height: canvas.height,
+        dataUrl: canvas.toDataURL("image/jpeg", 0.86)
+      };
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = src;
+      });
+    }
+
+    function parseNumber(value) {
+      if (value === null || value === undefined || value === "") {
+        return null;
+      }
+      const num = Number(value);
+      return Number.isNaN(num) ? null : num;
+    }
+
+    function fallbackValue(value) {
+      return value ?? "-";
+    }
+
+    function shortDate(date) {
+      if (!date) return "--";
+      return date.slice(5).replace("-", "/");
+    }
+
+    function formatDate(date) {
+      if (!date) return "未填写";
+      const parsed = new Date(date);
+      if (Number.isNaN(parsed.getTime())) {
+        return date;
+      }
+      return parsed.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).replaceAll("/", "-");
+    }
+
+    function addDays(date, days) {
+      const parsed = new Date(date);
+      parsed.setDate(parsed.getDate() + days);
+      const month = String(parsed.getMonth() + 1).padStart(2, "0");
+      const day = String(parsed.getDate()).padStart(2, "0");
+      return parsed.getFullYear() + "-" + month + "-" + day;
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "未记录时间";
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) {
+        return value;
+      }
+      return parsed.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).replaceAll("/", "-");
+    }
+
+    function sortByDateDesc(a, b) {
+      return new Date(b.date) - new Date(a.date);
+    }
+
+    function showToast(message) {
+      elements.toast.textContent = message;
+      elements.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        elements.toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
+    window.addEventListener("online", () => {
+      showToast("网络已恢复，可继续同步 GitHub");
+    });
+
+    window.addEventListener("offline", () => {
+      showToast("当前离线，记录仍会保存在本机");
+    });
+  </script>
+</body>
+</html>
